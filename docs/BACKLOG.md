@@ -109,13 +109,13 @@ verifiable acceptance criteria — concrete checks, not vibes.
 
 ## Epic 3 — Ship readiness
 
-- [ ] **3.1 Responsive layout across breakpoints**
+- [x] **3.1 Responsive layout across breakpoints**
   - The app is usable with no horizontal scroll and no overlapping
     elements at 390px, 768px, and 1440px widths, matching the two
     layouts (desktop two-column, mobile stacked) specified in
     `docs/DESIGN.md`.
 
-- [ ] **3.2 Accessibility pass**
+- [x] **3.2 Accessibility pass**
   - All interactive controls are reachable and operable via keyboard
     alone, with a visible focus ring at every stop.
   - The trace panel result updates are announced via an `aria-live`
@@ -131,7 +131,7 @@ verifiable acceptance criteria — concrete checks, not vibes.
     animation once on first load, and is static (no animation) when
     `prefers-reduced-motion` is set.
 
-- [ ] **3.4 Deploy readiness for subpath hosting**
+- [x] **3.4 Deploy readiness for subpath hosting**
   - Running the production build (`npm run build`) and serving `dist/`
     from a non-root subpath (e.g. `/type-coercion-oracle/`) loads with
     no broken asset requests — confirms every asset reference is
