@@ -53,26 +53,30 @@ export function looselyEquals(x: unknown, y: unknown, tracer?: Tracer): boolean 
   }
 
   if (xType === "number" && yType === "string") {
-    return recurse(x, toNumber(y, tracer), "7.2.13 step 6", `y is a String; comparing x == ToNumber(y).`, tracer);
+    note("7.2.13 step 6", x, y, "y is a String; comparing x == ToNumber(y).", tracer);
+    return looselyEquals(x, toNumber(y, tracer), tracer);
   }
   if (xType === "string" && yType === "number") {
-    return recurse(toNumber(x, tracer), y, "7.2.13 step 7", `x is a String; comparing ToNumber(x) == y.`, tracer);
+    note("7.2.13 step 7", x, y, "x is a String; comparing ToNumber(x) == y.", tracer);
+    return looselyEquals(toNumber(x, tracer), y, tracer);
   }
 
   if (xType === "boolean") {
-    return recurse(toNumber(x, tracer), y, "7.2.13 step 9", `x is a Boolean; comparing ToNumber(x) == y.`, tracer);
+    note("7.2.13 step 9", x, y, "x is a Boolean; comparing ToNumber(x) == y.", tracer);
+    return looselyEquals(toNumber(x, tracer), y, tracer);
   }
   if (yType === "boolean") {
-    return recurse(x, toNumber(y, tracer), "7.2.13 step 10", `y is a Boolean; comparing x == ToNumber(y).`, tracer);
+    note("7.2.13 step 10", x, y, "y is a Boolean; comparing x == ToNumber(y).", tracer);
+    return looselyEquals(x, toNumber(y, tracer), tracer);
   }
 
   if ((xType === "number" || xType === "string") && yType === "object") {
-    const yPrim = toPrimitive(y, "default", tracer);
-    return recurse(x, yPrim, "7.2.13 step 11", `y is an Object; comparing x == ToPrimitive(y).`, tracer);
+    note("7.2.13 step 11", x, y, "y is an Object; comparing x == ToPrimitive(y).", tracer);
+    return looselyEquals(x, toPrimitive(y, "default", tracer), tracer);
   }
   if (xType === "object" && (yType === "number" || yType === "string")) {
-    const xPrim = toPrimitive(x, "default", tracer);
-    return recurse(xPrim, y, "7.2.13 step 12", `x is an Object; comparing ToPrimitive(x) == y.`, tracer);
+    note("7.2.13 step 12", x, y, "x is an Object; comparing ToPrimitive(x) == y.", tracer);
+    return looselyEquals(toPrimitive(x, "default", tracer), y, tracer);
   }
 
   tracer?.record({
@@ -85,15 +89,8 @@ export function looselyEquals(x: unknown, y: unknown, tracer?: Tracer): boolean 
   return false;
 }
 
-function recurse(
-  x: unknown,
-  y: unknown,
-  specSection: string,
-  detail: string,
-  tracer?: Tracer,
-): boolean {
+function note(specSection: string, x: unknown, y: unknown, detail: string, tracer?: Tracer): void {
   tracer?.record({ operation: "IsLooselyEqual", specSection, input: [x, y], output: undefined, detail });
-  return looselyEquals(x, y, tracer);
 }
 
 function sameTypeEquals(x: unknown, y: unknown, type: JsType): boolean {
