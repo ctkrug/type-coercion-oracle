@@ -42,6 +42,11 @@ describe("parseLiteral", () => {
     ["'unterminated", "unterminated string"],
     ["[1] extra", "trailing input"],
     ["{a 1}", "missing colon"],
+    ["toString", "Object.prototype member as bare identifier"],
+    ["constructor", "constructor as bare identifier"],
+    ["valueOf", "valueOf as bare identifier"],
+    ["hasOwnProperty", "hasOwnProperty as bare identifier"],
+    ["__proto__", "__proto__ as bare identifier"],
   ])("rejects %s (%s)", (src) => {
     expect(() => parseLiteral(src)).toThrow(ParseError);
   });

@@ -17,14 +17,14 @@ export class ParseError extends Error {
   }
 }
 
-const KEYWORD_VALUES: Record<string, unknown> = {
-  null: null,
-  undefined: undefined,
-  true: true,
-  false: false,
-  NaN: NaN,
-  Infinity: Infinity,
-};
+const KEYWORD_VALUES = new Map<string, unknown>([
+  ["null", null],
+  ["undefined", undefined],
+  ["true", true],
+  ["false", false],
+  ["NaN", NaN],
+  ["Infinity", Infinity],
+]);
 
 export function parseLiteral(source: string): unknown {
   const parser = new Parser(source);
@@ -182,14 +182,14 @@ class Parser {
     const match = /^[A-Za-z_$][A-Za-z0-9_$]*/.exec(this.src.slice(this.pos));
     if (!match) throw new ParseError(`Unexpected character '${this.peek()}' at position ${this.pos}`, this.pos);
     const word = match[0];
-    if (!(word in KEYWORD_VALUES)) {
+    if (!KEYWORD_VALUES.has(word)) {
       throw new ParseError(
         `Unsupported expression "${word}" — only literals (numbers, strings, booleans, null, undefined, NaN, Infinity, arrays, objects) are allowed`,
         this.pos,
       );
     }
     this.pos += word.length;
-    return KEYWORD_VALUES[word];
+    return KEYWORD_VALUES.get(word);
   }
 
   private expect(ch: string): void {
