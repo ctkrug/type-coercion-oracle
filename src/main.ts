@@ -92,11 +92,11 @@ function buildShell(root: HTMLElement): {
 
   const wordmark = el("header", { className: "site-header" }, [
     el("h1", { className: "wordmark" }, [
-      "Type Coercion ",
-      el("span", { className: "wordmark__accent" }, ["Oracle"]),
+      "Co",
+      el("span", { className: "wordmark__accent" }, ["ax"]),
     ]),
     el("p", { className: "tagline" }, [
-      "Type any two JavaScript values. Watch ==, +, Boolean(), and template-literal coercion run for real.",
+      "See how JavaScript coerces any two values. The real ==, +, Boolean(), and template-literal spec steps, traced live.",
     ]),
   ]);
 
