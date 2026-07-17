@@ -36,8 +36,11 @@ export function parseLiteral(source: string): unknown {
   return value;
 }
 
+const MAX_NESTING_DEPTH = 500;
+
 class Parser {
   pos = 0;
+  private depth = 0;
 
   constructor(private readonly src: string) {}
 
@@ -69,54 +72,71 @@ class Parser {
 
   private parseArray(): unknown[] {
     this.expect("[");
-    const items: unknown[] = [];
-    this.skipWhitespace();
-    if (this.peek() === "]") {
-      this.pos++;
-      return items;
-    }
-    for (;;) {
-      items.push(this.parseValue());
+    this.enterContainer();
+    try {
+      const items: unknown[] = [];
       this.skipWhitespace();
-      const ch = this.peek();
-      if (ch === ",") {
-        this.pos++;
-        continue;
-      }
-      if (ch === "]") {
+      if (this.peek() === "]") {
         this.pos++;
         return items;
       }
-      throw new ParseError(`Expected ',' or ']' at position ${this.pos}`, this.pos);
+      for (;;) {
+        items.push(this.parseValue());
+        this.skipWhitespace();
+        const ch = this.peek();
+        if (ch === ",") {
+          this.pos++;
+          continue;
+        }
+        if (ch === "]") {
+          this.pos++;
+          return items;
+        }
+        throw new ParseError(`Expected ',' or ']' at position ${this.pos}`, this.pos);
+      }
+    } finally {
+      this.depth--;
     }
   }
 
   private parseObject(): Record<string, unknown> {
     this.expect("{");
-    const obj: Record<string, unknown> = {};
-    this.skipWhitespace();
-    if (this.peek() === "}") {
-      this.pos++;
-      return obj;
-    }
-    for (;;) {
+    this.enterContainer();
+    try {
+      const obj: Record<string, unknown> = {};
       this.skipWhitespace();
-      const key = this.parseKey();
-      this.skipWhitespace();
-      this.expect(":");
-      const value = this.parseValue();
-      obj[key] = value;
-      this.skipWhitespace();
-      const ch = this.peek();
-      if (ch === ",") {
-        this.pos++;
-        continue;
-      }
-      if (ch === "}") {
+      if (this.peek() === "}") {
         this.pos++;
         return obj;
       }
-      throw new ParseError(`Expected ',' or '}' at position ${this.pos}`, this.pos);
+      for (;;) {
+        this.skipWhitespace();
+        const key = this.parseKey();
+        this.skipWhitespace();
+        this.expect(":");
+        const value = this.parseValue();
+        obj[key] = value;
+        this.skipWhitespace();
+        const ch = this.peek();
+        if (ch === ",") {
+          this.pos++;
+          continue;
+        }
+        if (ch === "}") {
+          this.pos++;
+          return obj;
+        }
+        throw new ParseError(`Expected ',' or '}' at position ${this.pos}`, this.pos);
+      }
+    } finally {
+      this.depth--;
+    }
+  }
+
+  private enterContainer(): void {
+    this.depth++;
+    if (this.depth > MAX_NESTING_DEPTH) {
+      throw new ParseError(`Nesting too deep (max ${MAX_NESTING_DEPTH} levels) at position ${this.pos}`, this.pos);
     }
   }
 

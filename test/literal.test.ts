@@ -41,7 +41,20 @@ describe("parseLiteral", () => {
     ["{a: 1", "unterminated object"],
     ["'unterminated", "unterminated string"],
     ["[1] extra", "trailing input"],
+    ["{a 1}", "missing colon"],
   ])("rejects %s (%s)", (src) => {
     expect(() => parseLiteral(src)).toThrow(ParseError);
+  });
+
+  it("rejects pathologically deep nesting as a ParseError instead of overflowing the stack", () => {
+    const depth = 5000;
+    const src = "[".repeat(depth) + "1" + "]".repeat(depth);
+    expect(() => parseLiteral(src)).toThrow(ParseError);
+  });
+
+  it("accepts nesting comfortably within the depth limit", () => {
+    const depth = 100;
+    const src = "[".repeat(depth) + "1" + "]".repeat(depth);
+    expect(() => parseLiteral(src)).not.toThrow();
   });
 });
