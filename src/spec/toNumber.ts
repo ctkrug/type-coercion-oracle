@@ -42,6 +42,9 @@ export function toNumber(argument: unknown, tracer?: Tracer): number {
 
 function describe(value: unknown): string {
   if (typeof value === "string") return JSON.stringify(value);
-  if (Number.isNaN(value)) return "NaN";
+  if (typeof value === "number") {
+    if (Number.isNaN(value)) return "NaN";
+    if (Object.is(value, -0)) return "-0";
+  }
   return String(value);
 }
