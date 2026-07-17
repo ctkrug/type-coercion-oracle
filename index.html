@@ -24,6 +24,83 @@
   </head>
   <body>
     <div id="app"></div>
+
+    <section class="seo" aria-label="About JavaScript type coercion">
+      <div class="seo__inner">
+        <h2 class="seo__title">JavaScript type coercion, explained by running the spec</h2>
+        <p>
+          JavaScript type coercion is the set of rules the language follows when
+          an operator receives a value of a type it did not expect, so it
+          converts one value into another type before doing the work. When you
+          write <code>1 == "1"</code> or <code>[] + {}</code>, the engine does
+          not guess: it runs a short, published algorithm from the ECMAScript
+          specification. Coax implements those algorithms
+          (<code>ToPrimitive</code>, <code>ToNumber</code>,
+          <code>ToString</code>, <code>ToBoolean</code>, and the Abstract
+          Equality Comparison) and prints each step so you can read exactly why
+          a result is what it is.
+        </p>
+
+        <h3 class="seo__q">What is JavaScript type coercion?</h3>
+        <p>
+          Coercion is automatic type conversion during an operation. The
+          <code>+</code> operator first converts both operands to primitives,
+          then either concatenates strings or adds numbers. Loose equality
+          (<code>==</code>) converts across types before comparing.
+          <code>Boolean(x)</code> maps a value to <code>true</code> or
+          <code>false</code>. Template literals convert every substitution to a
+          string. Type two values into Coax to watch each of these run.
+        </p>
+
+        <h3 class="seo__q">What is the difference between == and === in JavaScript?</h3>
+        <p>
+          <code>===</code> (strict equality) compares type and value with no
+          conversion: if the two operands are different types, the answer is
+          <code>false</code> immediately. <code>==</code> (loose equality)
+          applies coercion first, which is where the surprising results come
+          from. Coax traces the coercing operators, <code>==</code> included, so
+          a <code>==</code> vs <code>===</code> check becomes a question you can
+          answer by reading the steps rather than memorizing a rule.
+        </p>
+
+        <h3 class="seo__q">Is there a JavaScript type coercion table?</h3>
+        <p>
+          Most JavaScript type coercion tables list a fixed set of famous pairs
+          and their answers. That helps until your bug involves a value the
+          table never listed, such as an object with a custom
+          <code>valueOf</code> or a nested array. Coax replaces the static table
+          with a live one: it computes the result for any pair you enter and
+          shows the abstract operations behind it, so the coverage is the whole
+          grammar, not a hand-picked row.
+        </p>
+
+        <h3 class="seo__q">Why does [] + {} differ from {} + []?</h3>
+        <p>
+          As expressions, both coerce to the string <code>"[object Object]"</code>.
+          The famous difference comes from parsing: at a console statement top
+          level, a leading <code>{}</code> reads as an empty block, so
+          <code>{} + []</code> is actually unary <code>+[]</code>, which is
+          <code>0</code>. Coax evaluates operands as expressions and flags this
+          exact case, showing both the expression and statement results.
+        </p>
+
+        <h3 class="seo__q">Does Coax run my code?</h3>
+        <p>
+          No. Operands are read by a restricted literal parser that never calls
+          <code>eval</code> or <code>Function</code>. Anything outside the
+          literal grammar (numbers, strings, booleans, <code>null</code>,
+          <code>undefined</code>, <code>NaN</code>, <code>Infinity</code>,
+          arrays, objects) is rejected with an inline error. Everything runs in
+          your browser and nothing is sent anywhere.
+        </p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a class="site-footer__link" href="https://github.com/ctkrug/type-coercion-oracle">View on GitHub</a>
+      <a class="site-footer__link site-footer__link--muted" href="https://apps.charliekrug.com">More by Charlie Krug → apps.charliekrug.com</a>
+    </footer>
+
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>
