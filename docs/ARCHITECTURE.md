@@ -46,12 +46,16 @@ operand text (2x) --parseLiteral--> JS value (2x)
 
   These are unit-tested independently of the DOM (`test/*.test.ts`) and
   are the only place spec logic lives — the UI never reimplements a
-  coercion rule.
+  coercion rule. `src/ui/*` and `src/main.ts` are tested too, against a
+  real jsdom document (`// @vitest-environment jsdom` per file) — `main.ts`
+  is mounted against a `#app` node and driven with real input/click events.
 
 - **`src/parse/literal.ts`** — a restricted recursive-descent parser for a
   JS-literal grammar (primitives, nested arrays/objects). This is what
   turns operand textbox input into real JS values without `eval`.
-  Anything outside the grammar throws `ParseError`.
+  Anything outside the grammar throws `ParseError`, including input
+  nested past a 500-level depth guard (protects the call stack from
+  pathological input; a normal `ParseError` rather than a `RangeError`).
 
 - **`src/ui/`** — thin presentation layer over the engine:
   - `dom.ts` — `el()`, a small element builder that only ever writes text
@@ -82,9 +86,10 @@ operand text (2x) --parseLiteral--> JS value (2x)
 ## Run / test
 
 ```
-npm run dev        # vite dev server
-npm run build       # tsc --noEmit && vite build -> dist/
-npm test            # vitest run
+npm run dev            # vite dev server
+npm run build           # tsc --noEmit && vite build -> dist/
+npm test                # vitest run
+npm run test:coverage   # vitest run --coverage (v8)
 npm run typecheck
 npm run lint
 ```
@@ -97,4 +102,7 @@ with no absolute-path asset requests.
 
 - The operand grammar covers literals only — no presets gallery, no
   shareable permalink yet.
-- No automated a11y/contrast audit beyond manual review.
+- Contrast/keyboard/subpath-hosting checks were verified with a scripted
+  Playwright pass during QA, not wired into CI as an automated gate.
+- The wordmark's stroke-dasharray "draw-on" animation (DESIGN.md 3.3) is
+  still a static glow-in placeholder.
